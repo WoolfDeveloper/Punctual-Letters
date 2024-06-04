@@ -10,7 +10,7 @@ This is a simple software especialized to give a format **more readable** for pe
 
 The software is **fully portable** and can be executed in all platforms except in Android and iOS. **Just download it and execute it.**
 
-Now only can be used with **.epub** files, but in the future will be able to use with **.pdf** files, or simply a field with rich formatted text.
+For now, it can only be used with **.epub** files, but in the future will be able to use with **.pdf** files, or simply a field with rich formatted text.
 
 Punctual letters give you a file with this format:
 ![In this place will go an image of .epub punctualized.]()

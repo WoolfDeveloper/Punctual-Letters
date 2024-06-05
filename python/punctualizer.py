@@ -1,6 +1,8 @@
 import os
 import shutil
 import zipfile
+import PyPDF2
+from textblob import TextBlob
 
 class PunctualLetterController:
     def __init__(self, to_route):
@@ -174,4 +176,42 @@ class PunctualLetterController:
         if os.path.exists(self.export_folder):
             shutil.rmtree(self.export_folder)
         return True
+
+class PunctualLetterPDFController:
+    def __init__(self, to_route):
+        self.export_folder = ''
+        self.original_file = 'test_pdf.pdf'
+        self.new_file = to_route
+        self.bookname = ''
+        self.delete_export_folder = True
+
+    def process_pdf(self):
+        with open(self.original_file, 'rb') as f:
+            pdf_reader = PyPDF2.PdfReader(f)
+            num_pages = len(pdf_reader.pages)
+            new_text = ''
+            
+            for page_num in range(num_pages):
+                current_page = pdf_reader.pages[page_num]
+                text = current_page.extract_text()
+                for line in text.splitlines():
+                    text_blob = TextBlob(line)
+                    modified_line = ''
+                    for word in text_blob.words:
+                        modified_word = f"**{word[:2]}**"
+                        modified_line += modified_word + ' '
+                    modified_line = modified_line[:-1]
+                    new_text += modified_line + '\n'
+                new_text += '\n'
+
+        with open(self.new_file, 'wb') as f:
+            pdf_writer = PyPDF2.PdfWriter()
+            new_page = pdf_writer.add_blank_page()
+            new_page.set_text(new_text)
+            pdf_writer.write(f)
+
+#controller = PunctualLetterPDFController('modified_pdf.pdf')
+#controller.process_pdf()
+
+
 

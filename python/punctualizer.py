@@ -162,7 +162,7 @@ class PunctualLetterController:
 
     #region Sort and tags
 
-    def separateTagsFromText(self, line):
+    """ def separateTagsFromText(self, line):
         if '<' in line:
             line_splitted = line.split('>')
             new_line_splitted = []
@@ -215,7 +215,66 @@ class PunctualLetterController:
                 line_splitted = new_line_splitted
             else:
                 line_splitted = line + '|supermegatext'
-        return line_splitted
+        return line_splitted """
+        
+    def separateTagsFromText(self, line):
+        if '<' in line:
+            return self.processHTMLLine(line)
+        else:
+            return self.processPlainText(line)
+
+    def processHTMLLine(self, line):
+        line_splitted = line.split('>')
+        new_line_splitted = []
+        for segment in line_splitted:
+            processed_segment = self.processSegment(segment)
+            new_line_splitted.extend(processed_segment)
+        if '\n' in line_splitted[-1] and not '\n' in new_line_splitted[-1]:
+            new_line_splitted.append('\n')
+        return new_line_splitted
+
+    def processPlainText(self, line):
+        line_splitted = line.split('\n')
+        new_line_splitted = [segment + '|supermegatext' if segment != '' else '\n' for segment in line_splitted]
+        return new_line_splitted
+
+    def processSegment(self, segment):
+        new_line_splitted = []
+        segment = segment.lstrip()
+        if not '|tag' in segment and segment != '':
+            if '<' in segment[0] and not '\n' in segment:
+                new_line_splitted.append(segment + '>|tag')
+            elif '</' in segment:
+                new_line_splitted.extend(self.processClosingTag(segment))
+            elif '<' in segment:
+                new_line_splitted.extend(self.processOpeningTagAndText(segment))
+        elif '|tag' in segment:
+            new_line_splitted.append(segment)
+        return new_line_splitted
+
+    def processClosingTag(self, segment):
+        new_line_splitted = []
+        segment += '|clossingtag'
+        segmentDivided = segment.split('</')
+        for microsegment in segmentDivided:
+            if '|clossingtag' in microsegment:
+                microsegment = self.adjustClosingTag(microsegment)
+                new_line_splitted.append(microsegment)
+            else:
+                if microsegment:
+                    new_line_splitted.append(microsegment + '|supermegatext')
+        return new_line_splitted
+
+    def adjustClosingTag(self, microsegment):
+        microsegment = microsegment.replace('|clossingtag', '')
+        if not '>' in microsegment or not '|tag' in microsegment:
+            return '</' + microsegment + '>|tag'
+        else:
+            return '</' + microsegment
+
+    def processOpeningTagAndText(self, segment):
+        text, tag = segment.split('<', 1)
+        return [text + '|supermegatext', '<' + tag + '>|tag']
 
     #endregion
 

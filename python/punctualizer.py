@@ -9,18 +9,22 @@ class PunctualLetterController:
         self.new_file = to_route
         self.bookname = ''
         self.delete_export_folder = True
+        self.HTML_TAGS_TO_FILTER = ['<p', '</p', '<div', '</div', '<span', '</span']
+        self.HTML_TAGS_TO_EXCLUDE = ['<img']
         self.setTempPath()
 
     def processfile(self):
         self.exportEpub()
         file_puntualized = self.PunctualLetterizerFiles()
-        if file_puntualized:
-            return self.makeEpub()
+        if file_puntualized[0]:
+            self.makeEpub()
+            return file_puntualized
         else:
             self.deleteExportFolder()
-            return False
+            return file_puntualized
 
     def exportEpub(self):
+        self.resetTempPath()
         with zipfile.ZipFile(self.original_file, 'r') as zip_ref:
             zip_ref.extractall(self.export_folder)
 
@@ -31,7 +35,8 @@ class PunctualLetterController:
                     file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, self.export_folder)
                     zip_ref.write(file_path, relative_path)
-        self.deleteExportFolder()
+        if self.delete_export_folder:
+            self.deleteExportFolder()
         return True
 
     def addFolderToZip(self, folder, zip_ref, base_path=''):
@@ -48,6 +53,10 @@ class PunctualLetterController:
     def setTempPath(self):
         script_dir = os.path.dirname(__file__)
         self.export_folder = os.path.join(script_dir, '.temp')
+
+    def resetTempPath(self):
+        if os.path.exists(self.export_folder):
+            self.deleteExportFolder()
         os.makedirs(self.export_folder, exist_ok=True)
 
     def setNewEpubPath(self, filepath):
@@ -60,8 +69,7 @@ class PunctualLetterController:
                 if file.endswith(('.html', '.xhtml', '.htm'))]
 
         if len(files) == 0:
-            #TODO: Poner mensajes de error como err.processed o err.file_null
-            return False
+            return [False, 'err.file_empty']
 
         cssfiles = [os.path.join(root, file) for root, _, files in os.walk(self.export_folder) for file in files
                 if file.endswith('.css')]
@@ -71,10 +79,10 @@ class PunctualLetterController:
             with open(file, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 if 'Punctualized by Punctual Letters' in lines[-1]:
-                    return False
+                    return [False, 'err.file_processed']
             with open(file, 'w', encoding='utf-8') as f:
                 for line in lines:
-                    if '<p' in line and '<img' not in line:
+                    if (self.filterByTags(line) and self.excludeByTags(line)) or '<' not in line:
                         line_separated = self.separateTagsFromText(line)
                         new_line = []
                         idx = 0
@@ -94,7 +102,8 @@ class PunctualLetterController:
 
                     f.write(line)
                 f.write('\n<!-- Punctualized by Punctual Letters -->\n')
-        return True
+        return [True, 'succ.epub_processed']
+
 
     def punctualizeText(self, text):
         text_exploded = text.split()
@@ -168,8 +177,32 @@ class PunctualLetterController:
             if '\n' in line_splitted[-1] and not '\n' in new_line_splitted[-1]:
                 new_line_splitted.append('\n')
             line_splitted = new_line_splitted
+        else:
+            if '\n' in line and not '\\' == line[0]:
+                line_splitted = line.split('\n')
+                new_line_splitted = []
+                for segment in line_splitted:
+                    if segment != '':
+                        new_line_splitted.append(segment + '|supermegatext')
+                    else:
+                        new_line_splitted.append('\n')
+                line_splitted = new_line_splitted
+            else:
+                line_splitted = line + '|supermegatext'
         return line_splitted
-    
+
+    def filterByTags(self, line):
+        for tag in self.HTML_TAGS_TO_FILTER:
+            if tag in line:
+                return True
+        return False
+
+    def excludeByTags(self, line):
+        for tag in self.HTML_TAGS_TO_EXCLUDE:
+            if tag in line:
+                return False
+        return True
+
     def deleteExportFolder(self):
         if os.path.exists(self.export_folder):
             shutil.rmtree(self.export_folder)

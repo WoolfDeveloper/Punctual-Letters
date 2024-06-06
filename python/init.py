@@ -86,19 +86,19 @@ class ScreenController(customtkinter.CTk):
         to_path_value = self.input_path_to.get()
         puntual_letter = PunctualLetterController(to_path_value)
         puntual_letter.setNewEpubPath(file)
-        processed = puntual_letter.processfile()
-        if not processed:
+        processed_result = puntual_letter.processfile()
+        if not processed_result[0]:
             self.reset_progress_bar()
-            tkinter.messagebox.showerror("Error", self.message_repo.get_error("err.not_processed"))
+            tkinter.messagebox.showerror("Error", self.message_repo.get_error(processed_result[1]))
         else: 
             self.put_full_progress_bar()
-            tkinter.messagebox.showinfo("Success", self.message_repo.get_success("succ.epub_processed"))
+            tkinter.messagebox.showinfo("Success", self.message_repo.get_success(processed_result[1]))
 
     def validate_epubs(self, path):
         if os.path.isfile(path) and path.endswith('.epub'):
             return path
         else:
-            tkinter.messagebox.showerror("Error", self.message_repo.get_error("err.file_null"))
+            tkinter.messagebox.showerror("Error", self.message_repo.get_error("err.file_not_valid"))
             return None
 
     def put_full_progress_bar(self):

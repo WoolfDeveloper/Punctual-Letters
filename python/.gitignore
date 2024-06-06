@@ -1,5 +1,6 @@
 /examples
 **/*.epub
+**/*.pdf
 .temp/*
 /__pycache__/*
 /dist

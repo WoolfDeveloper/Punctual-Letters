@@ -41,7 +41,6 @@ I present you the **Puntual Letters! App**.
 6. Wait until the process finish.
 
 7. When the process finish, you will see a message and you can enjoy your new **punctualized** file.
-![Notice that you have just finished punctuating](https://github.com/WoolfDeveloper/Punctual-Letters/blob/main/docs/images/6-succesfully-punctualized.png)
 
 [🔼](#punctual-letters)
 

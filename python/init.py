@@ -20,7 +20,7 @@ class ScreenController(customtkinter.CTk):
         icon = tkinter.PhotoImage(file="assets/icon.png")
         self.iconphoto(True, icon)
 
-        self.geometry(f"{900}x{400}")
+        self.geometry(f"{850}x{400}")
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)

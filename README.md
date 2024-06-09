@@ -13,7 +13,7 @@ The software is **fully portable** and can be executed in all platforms except i
 For now, it can only be used with **.epub** files, but in the future will be able to use with **.pdf** files, or simply a field with rich formatted text.
 
 Punctual letters give you a file with this format:
-![In this place will go an image of .epub punctualized.]()
+![In this place will go an image of .epub punctualized.](https://github.com/WoolfDeveloper/Punctual-Letters/blob/main/docs/images/1-rom-and-jul-punctualized.png)
 
 This file is called **punctualized** and can be read in any device with a **.epub reader**.  
 Many Ebooks and Apps in the smartphones can read this format.

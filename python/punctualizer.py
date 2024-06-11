@@ -10,7 +10,7 @@ class PunctualLetterController:
         self.bookname = ''
         self.delete_export_folder = True
         self.HTML_TAGS_TO_FILTER = ['<p', '</p', '<div', '</div', '<span', '</span', '<br', '<i', '</i']
-        self.HTML_TAGS_TO_EXCLUDE = ['<img']
+        self.HTML_TAGS_TO_EXCLUDE = []
         self.setTempPath()
 
     #region Process file and paths
